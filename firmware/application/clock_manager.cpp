@@ -435,6 +435,7 @@ void ClockManager::portapack_tcxo_enable() {
 void ClockManager::portapack_tcxo_disable() {
 #ifdef PRALINE
     gpio_control::clkin_ctrl.setInactive();
+    set_p1_control(P1_Function::TriggerIn);
 #endif
     portapack::io.reference_oscillator(false);
 }
@@ -656,6 +657,10 @@ bool ClockManager::loss_of_signal() {
 ClockManager::ReferenceSource ClockManager::detect_reference_source() {
     if (portapack::persistent_memory::config_disable_external_tcxo())
         return ReferenceSource::Xtal;
+
+#ifdef PRALINE
+    set_p1_control(P1_Function::ClkIn);
+#endif
 
     if (loss_of_signal()) {
         // No external reference. Turn on PortaPack reference (if present).
